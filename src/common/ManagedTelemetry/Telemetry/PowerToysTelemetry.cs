@@ -2,8 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Diagnostics.Tracing;
 using Microsoft.PowerToys.Telemetry.Events;
+using Microsoft.Win32;
 
 namespace Microsoft.PowerToys.Telemetry
 {
@@ -36,14 +38,28 @@ namespace Microsoft.PowerToys.Telemetry
         public void WriteEvent<T>(T telemetryEvent)
             where T : EventBase, IEvent
         {
-            this.Write<T>(
-                telemetryEvent.EventName,
-                new EventSourceOptions()
-                {
-                    Keywords = ProjectKeywordMeasure,
-                    Tags = ProjectTelemetryTagProductAndServicePerformance,
-                },
-                telemetryEvent);
+            string registryKey = @"HKEY_CURRENT_USER\Software\Classes\PowerToys\";
+            bool isDataDiagnosticsEnabled = false;
+
+            try
+            {
+                isDataDiagnosticsEnabled = (bool)Registry.GetValue(registryKey, "AllowDataDiagnostics", false);
+            }
+            catch (Exception)
+            {
+            }
+
+            if (isDataDiagnosticsEnabled)
+            {
+                this.Write<T>(
+                    telemetryEvent.EventName,
+                    new EventSourceOptions()
+                    {
+                        Keywords = ProjectKeywordMeasure,
+                        Tags = ProjectTelemetryTagProductAndServicePerformance,
+                    },
+                    telemetryEvent);
+            }
         }
     }
 }

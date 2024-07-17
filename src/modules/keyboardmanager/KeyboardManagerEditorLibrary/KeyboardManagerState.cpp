@@ -7,6 +7,7 @@
 #include "KeyDelay.h"
 
 using namespace KBMEditor;
+using namespace winrt;
 
 // Constructor
 KeyboardManagerState::KeyboardManagerState() :

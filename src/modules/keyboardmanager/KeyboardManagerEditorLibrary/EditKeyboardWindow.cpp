@@ -24,6 +24,7 @@
 #include "EditorConstants.h"
 #include <common/Themes/theme_listener.h>
 
+using namespace winrt;
 using namespace winrt::Windows::Foundation;
 
 static UINT g_currentDPI = DPIAware::DEFAULT_DPI;

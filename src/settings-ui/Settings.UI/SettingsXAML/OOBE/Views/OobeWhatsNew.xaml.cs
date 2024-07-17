@@ -14,16 +14,24 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI.UI.Controls;
+using global::PowerToys.GPOWrapper;
 using ManagedCommon;
+using Microsoft.PowerToys.Settings.UI.Helpers;
+using Microsoft.PowerToys.Settings.UI.Library;
 using Microsoft.PowerToys.Settings.UI.OOBE.Enums;
 using Microsoft.PowerToys.Settings.UI.OOBE.ViewModel;
+using Microsoft.PowerToys.Settings.UI.Views;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Win32;
 
 namespace Microsoft.PowerToys.Settings.UI.OOBE.Views
 {
     public sealed partial class OobeWhatsNew : Page
     {
+        private static readonly string DataDiagnosticsRegistryKey = @"HKEY_CURRENT_USER\Software\Classes\PowerToys\";
+        private static readonly string DataDiagnosticsRegistryValueName = @"AllowDataDiagnostics";
+
         // Contains information for a release. Used to deserialize release JSON info from GitHub.
         private sealed class PowerToysReleaseInfo
         {
@@ -40,7 +48,11 @@ namespace Microsoft.PowerToys.Settings.UI.OOBE.Views
             public string ReleaseNotes { get; set; }
         }
 
+        private SettingsUtils _settingsUtils;
+
         public OobePowerToysModule ViewModel { get; set; }
+
+        public bool IsDataDiagnosticsInfoBarEnabled => GetIsDataDiagnosticsInfoBarEnabled();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OobeWhatsNew"/> class.
@@ -48,8 +60,33 @@ namespace Microsoft.PowerToys.Settings.UI.OOBE.Views
         public OobeWhatsNew()
         {
             this.InitializeComponent();
+            _settingsUtils = new SettingsUtils();
             ViewModel = new OobePowerToysModule(OobeShellPage.OobeShellHandler.Modules[(int)PowerToysModules.WhatsNew]);
             DataContext = ViewModel;
+        }
+
+        private bool GetIsDataDiagnosticsInfoBarEnabled()
+        {
+            var isDataDiagnosticsGpoDisallowed = GPOWrapper.GetAllowDataDiagnosticsValue() == GpoRuleConfigured.Disabled;
+
+            if (isDataDiagnosticsGpoDisallowed)
+            {
+                return false;
+            }
+
+            object registryValue = Registry.GetValue(DataDiagnosticsRegistryKey, DataDiagnosticsRegistryValueName, false);
+
+            if (registryValue is null)
+            {
+                return true;
+            }
+
+            if ((int)registryValue == 0)
+            {
+               return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -164,6 +201,28 @@ namespace Microsoft.PowerToys.Settings.UI.OOBE.Views
                     Process.Start(new ProcessStartInfo(link.ToString()) { UseShellExecute = true });
                 });
             }
+        }
+
+        private void EnableDataDiagnostics_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            // Update UI
+            DataDiagnosticsInfoBar.Title = ResourceLoaderInstance.ResourceLoader.GetString("Oobe_WhatsNew_DataDiagnostics_Enabled_InfoBar_Title");
+            DataDiagnosticsInfoBarDesc.Content = ResourceLoaderInstance.ResourceLoader.GetString("Oobe_WhatsNew_DataDiagnostics_Enabled_InfoBar_Desc");
+            DataDiagnosticsInfoBar.ActionButton.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+
+            // Enable Data Diagnostics
+            try
+            {
+                Registry.SetValue(DataDiagnosticsRegistryKey, DataDiagnosticsRegistryValueName, 1);
+            }
+            catch (Exception)
+            {
+            }
+
+            this.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+            {
+                ShellPage.ShellHandler?.SignalGeneralDataUpdate();
+            });
         }
     }
 }

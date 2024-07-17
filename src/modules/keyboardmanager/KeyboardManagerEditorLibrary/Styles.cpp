@@ -3,5 +3,5 @@
 
 Style AccentButtonStyle()
 {
-    return Application::Current().Resources().Lookup(box_value(L"AccentButtonStyle")).as<Style>();
+    return Application::Current().Resources().Lookup(winrt::box_value(L"AccentButtonStyle")).as<Style>();
 }

@@ -18,11 +18,15 @@ using Microsoft.PowerToys.Settings.UI.Library.Helpers;
 using Microsoft.PowerToys.Settings.UI.Library.Interfaces;
 using Microsoft.PowerToys.Settings.UI.Library.Utilities;
 using Microsoft.PowerToys.Settings.UI.Library.ViewModels.Commands;
+using Microsoft.Win32;
 
 namespace Microsoft.PowerToys.Settings.UI.ViewModels
 {
     public class GeneralViewModel : Observable
     {
+        private static readonly string DataDiagnosticsRegistryKey = @"HKEY_CURRENT_USER\Software\Classes\PowerToys\";
+        private static readonly string DataDiagnosticsRegistryValueName = @"AllowDataDiagnostics";
+
         private GeneralSettings GeneralSettingsConfig { get; set; }
 
         private UpdatingSettings UpdatingSettingsConfig { get; set; }
@@ -140,6 +144,16 @@ namespace Microsoft.PowerToys.Settings.UI.ViewModels
             _autoDownloadUpdatesIsGpoDisabled = GPOWrapper.GetDisableAutomaticUpdateDownloadValue() == GpoRuleConfigured.Enabled;
             _experimentationIsGpoDisallowed = GPOWrapper.GetAllowExperimentationValue() == GpoRuleConfigured.Disabled;
             _showWhatsNewAfterUpdatesIsGpoDisabled = GPOWrapper.GetDisableShowWhatsNewAfterUpdatesValue() == GpoRuleConfigured.Enabled;
+            _enableDataDiagnosticsIsGpoDisallowed = GPOWrapper.GetAllowDataDiagnosticsValue() == GpoRuleConfigured.Disabled;
+
+            if (_enableDataDiagnosticsIsGpoDisallowed)
+            {
+                _enableDataDiagnostics = false;
+            }
+            else
+            {
+                _enableDataDiagnostics = GetIsDataDiagnosticsEnabled();
+            }
 
             if (dispatcherAction != null)
             {
@@ -163,6 +177,8 @@ namespace Microsoft.PowerToys.Settings.UI.ViewModels
         private bool _showWhatsNewAfterUpdatesIsGpoDisabled;
         private bool _enableExperimentation;
         private bool _experimentationIsGpoDisallowed;
+        private bool _enableDataDiagnostics;
+        private bool _enableDataDiagnosticsIsGpoDisallowed;
 
         private UpdatingSettings.UpdatingState _updatingState = UpdatingSettings.UpdatingState.UpToDate;
         private string _newAvailableVersion = string.Empty;
@@ -392,9 +408,38 @@ namespace Microsoft.PowerToys.Settings.UI.ViewModels
             }
         }
 
+        public bool EnableDataDiagnostics
+        {
+            get
+            {
+                return _enableDataDiagnostics;
+            }
+
+            set
+            {
+                if (_enableDataDiagnostics != value)
+                {
+                    _enableDataDiagnostics = value;
+
+                    try
+                    {
+                        Registry.SetValue(DataDiagnosticsRegistryKey, DataDiagnosticsRegistryValueName, value ? 1 : 0);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+        }
+
         public bool IsExperimentationGpoDisallowed
         {
             get => _experimentationIsGpoDisallowed;
+        }
+
+        public bool IsDataDiagnosticsGPOManaged
+        {
+            get => _enableDataDiagnosticsIsGpoDisallowed;
         }
 
         public string SettingsBackupAndRestoreDir
@@ -995,6 +1040,32 @@ namespace Microsoft.PowerToys.Settings.UI.ViewModels
 
                 NotifyPropertyChanged(nameof(IsDownloadAllowed));
             }
+        }
+
+        internal void RefreshSettingsOnExternalChange()
+        {
+            EnableDataDiagnostics = GetIsDataDiagnosticsEnabled();
+
+            NotifyPropertyChanged(nameof(EnableDataDiagnostics));
+        }
+
+        private bool GetIsDataDiagnosticsEnabled()
+        {
+            object registryValue = null;
+            try
+            {
+                registryValue = Registry.GetValue(DataDiagnosticsRegistryKey, DataDiagnosticsRegistryValueName, false);
+            }
+            catch
+            {
+            }
+
+            if (registryValue is not null)
+            {
+                return (int)registryValue == 1 ? true : false;
+            }
+
+            return false;
         }
     }
 }

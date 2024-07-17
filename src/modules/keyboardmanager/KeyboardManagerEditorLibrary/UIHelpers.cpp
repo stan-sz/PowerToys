@@ -3,6 +3,7 @@
 
 #include <common/monitor_utils.h>
 
+using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Automation::Peers;
 
@@ -111,7 +112,7 @@ namespace UIHelpers
 
     winrt::Windows::Foundation::Collections::IVector<winrt::Windows::Foundation::IInspectable> ToBoxValue(const std::vector<std::pair<DWORD, std::wstring>>& list)
     {
-        winrt::Windows::Foundation::Collections::IVector<winrt::Windows::Foundation::IInspectable> boxList = single_threaded_vector<winrt::Windows::Foundation::IInspectable>();
+        winrt::Windows::Foundation::Collections::IVector<winrt::Windows::Foundation::IInspectable> boxList = winrt::single_threaded_vector<winrt::Windows::Foundation::IInspectable>();
         for (auto& val : list)
         {
             auto comboBox = ComboBoxItem();

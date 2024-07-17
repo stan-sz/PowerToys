@@ -12,6 +12,8 @@
 #include "EditorHelpers.h"
 #include "EditorConstants.h"
 
+using namespace winrt;
+
 //Both static members are initialized to null
 HWND ShortcutControl::editShortcutsWindowHandle = nullptr;
 KBMEditor::KeyboardManagerState* ShortcutControl::keyboardManagerState = nullptr;

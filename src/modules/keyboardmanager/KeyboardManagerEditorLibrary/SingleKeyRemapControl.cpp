@@ -8,6 +8,8 @@
 #include "EditorHelpers.h"
 #include "EditorConstants.h"
 
+using namespace winrt;
+
 //Both static members are initialized to null
 HWND SingleKeyRemapControl::EditKeyboardWindowHandle = nullptr;
 KBMEditor::KeyboardManagerState* SingleKeyRemapControl::keyboardManagerState = nullptr;

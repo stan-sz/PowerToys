@@ -13,6 +13,8 @@
 #include "ShortcutErrorType.h"
 #include "EditorConstants.h"
 
+using namespace winrt;
+
 // Initialized to null
 KBMEditor::KeyboardManagerState* KeyDropDownControl::keyboardManagerState = nullptr;
 MappingConfiguration* KeyDropDownControl::mappingConfiguration = nullptr;

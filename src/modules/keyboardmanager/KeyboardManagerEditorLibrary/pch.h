@@ -29,16 +29,13 @@
 #include <common/logger/logger.h>
 #include <common/utils/resources.h>
 
-#include <ProjectTelemetry.h>
-
 #include <keyboardmanager/KeyboardManagerEditor/Generated Files/resource.h>
 //#include <Generated Files/resource.h>
 
-using namespace winrt;
-using namespace Windows::UI;
-using namespace Windows::UI::Composition;
-using namespace Windows::UI::Xaml::Hosting;
-using namespace Windows::Foundation::Numerics;
-using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml::Controls;
-namespace muxc = Microsoft::UI::Xaml::Controls;
+using namespace winrt::Windows::UI;
+using namespace winrt::Windows::UI::Composition;
+using namespace winrt::Windows::UI::Xaml::Hosting;
+using namespace winrt::Windows::Foundation::Numerics;
+using namespace winrt::Windows::UI::Xaml;
+using namespace winrt::Windows::UI::Xaml::Controls;
+namespace muxc = winrt::Microsoft::UI::Xaml::Controls;

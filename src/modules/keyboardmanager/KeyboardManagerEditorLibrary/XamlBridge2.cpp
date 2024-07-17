@@ -5,6 +5,7 @@
 #include <winrt/Microsoft.Toolkit.Win32.UI.XamlHost.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 
+using namespace winrt;
 namespace wac = Windows::ApplicationModel::Core;
 
 // Stubbed implementation for frameworkView.Initialize()

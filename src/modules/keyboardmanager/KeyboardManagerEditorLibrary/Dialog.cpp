@@ -7,7 +7,7 @@ IAsyncOperation<bool> Dialog::PartialRemappingConfirmationDialog(XamlRoot root, 
 {
     ContentDialog confirmationDialog;
     confirmationDialog.XamlRoot(root);
-    confirmationDialog.Title(box_value(dialogTitle));
+    confirmationDialog.Title(winrt::box_value(dialogTitle));
     confirmationDialog.IsPrimaryButtonEnabled(true);
     confirmationDialog.DefaultButton(ContentDialogButton::Primary);
     confirmationDialog.PrimaryButtonText(winrt::hstring(GET_RESOURCE_STRING(IDS_CONTINUE_BUTTON)));

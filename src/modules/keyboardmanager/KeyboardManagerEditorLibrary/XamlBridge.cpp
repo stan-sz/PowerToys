@@ -232,7 +232,7 @@ HWND XamlBridge::InitDesktopWindowsXamlSource(winrt::Windows::UI::Xaml::Hosting:
 {
     Logger::trace("XamlBridge::InitDesktopWindowsXamlSource()");
     HRESULT hr = S_OK;
-    winrt::init_apartment(apartment_type::single_threaded);
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
     winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();
 
     auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();
